@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Benefit Bridge</title>
+
+<!-- BLUE THEME STYLES -->
+<style>
+/* GLOBAL */
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:"Segoe UI",sans-serif;
+}
+body{
+background:linear-gradient(120deg,#e0f0ff,#f0f8ff);
+min-height:100vh;
+text-align:center;
+padding-bottom:50px;
+color:#0d47a1;
+}
+/* PAGE SECTIONS */
+.page{display:none;padding:30px;}
+/* HEADINGS */
+h1{color:#0d47a1;font-size:40px;margin-top:40px;}
+h2{color:#1565c0;margin:20px 0;}
+h3{color:#444;margin-bottom:10px;}
+/* BUTTONS */
+button{
+background:#1565c0;color:white;border:none;
+padding:12px 25px;margin:10px;border-radius:8px;
+cursor:pointer;font-size:15px;transition:0.3s;
+}
+button:hover{
+background:#0d47a1;transform:scale(1.05);
+box-shadow:0 4px 8px rgba(0,0,0,0.2);
+}
+/* INPUTS */
+input,select{
+padding:10px;margin:6px;width:240px;
+border-radius:6px;border:1px solid #aaa;font-size:14px;
+transition:0.3s;
+}
+input:focus,select:focus{
+outline:none;border:1px solid #1565c0;box-shadow:0 0 5px #81d4fa;
+}
+/* SEARCH BAR */
+#search{width:260px;border-radius:20px;padding:10px;border:1px solid #aaa;margin-bottom:20px;}
+/* TABLE */
+table{
+width:95%;margin:auto;border-collapse:collapse;background:white;
+border-radius:12px;overflow:hidden;
+box-shadow:0 6px 15px rgba(0,0,0,0.1);
+}
+th{background:#1565c0;color:white;padding:12px;font-size:15px;}
+td{padding:12px;border-bottom:1px solid #ddd;}
+tr:hover{background:#e3f2fd;}
+/* FAVORITE STAR */
+td:first-child{font-size:20px;cursor:pointer;}
+/* RECOMMENDED SCHEME */
+.recommended{background:#bbdefb;font-weight:bold;}
+/* DEADLINE WARNING */
+.deadline{color:#d32f2f;font-weight:bold;}
+/* DARK MODE */
+.dark-mode{background:#121212;color:white;}
+.dark-mode table{background:#1e1e1e;color:white;}
+.dark-mode th{background:#1565c0;}
+.dark-mode td{border-color:#444;}
+.dark-mode input,.dark-mode select{background:#1e1e1e;color:white;border:1px solid #555;}
+/* DARK MODE BUTTON */
+.dark-toggle{position:absolute;top:20px;right:20px;background:#1565c0;color:white;padding:8px 15px;border-radius:20px;font-size:13px;cursor:pointer;}
+/* MOBILE RESPONSIVE */
+@media (max-width:768px){
+table{font-size:12px;}
+input,select{width:180px;}
+h1{font-size:30px;}
+button{padding:10px 20px;}
+}
+</style>
+</head>
+<body>
+
+<!-- DARK MODE TOGGLE -->
+<button class="dark-toggle" onclick="toggleDarkMode()">🌙 Dark Mode</button>
+
+<!-- HOME -->
+<div id="home" class="page" style="display:block">
+<h1>Benefit Bridge</h1>
+<p>Find Government Schemes You Are Eligible For</p>
+<button onclick="showPage('login')">Start</button>
+</div>
+
+<!-- LOGIN -->
+<div id="login" class="page">
+<h2>Login</h2>
+<input placeholder="Username"><br>
+<input type="password" placeholder="Password"><br>
+<button onclick="showPage('form')">Login</button>
+<p>New User?</p>
+<button onclick="showPage('signup')">Sign Up</button>
+</div>
+
+<!-- SIGNUP -->
+<div id="signup" class="page">
+<h2>Create Account</h2>
+<input placeholder="Username"><br>
+<input type="password" placeholder="Password"><br>
+<button onclick="showPage('form')">Register</button>
+</div>
+
+<!-- USER DETAILS -->
+<div id="form" class="page">
+<h2>Enter Your Details</h2>
+<input id="name" placeholder="Name"><br>
+<input id="age" type="number" placeholder="Age"><br>
+<input id="income" type="number" placeholder="Annual Income"><br>
+<select id="occupation">
+<option>Farmer</option>
+<option>Student</option>
+<option>Unemployed</option>
+<option>Business</option>
+<option>Worker</option>
+<option>Government Employee</option>
+<option>Senior Citizen</option>
+</select><br>
+<select id="state">
+<option>Andhra Pradesh</option>
+<option>Telangana</option>
+<option>Tamil Nadu</option>
+<option>Karnataka</option>
+<option>Maharashtra</option>
+<option>All</option>
+</select><br>
+<select id="location">
+<option value="urban">Urban</option>
+<option value="rural">Rural</option>
+</select><br>
+<select id="caste">
+<option value="general">General</option>
+<option value="obc">OBC</option>
+<option value="sc">SC</option>
+<option value="st">ST</option>
+</select><br>
+<select id="gender">
+<option value="male">Male</option>
+<option value="female">Female</option>
+</select><br>
+<button onclick="checkEligibility()">Show Eligible Schemes</button>
+</div>
+
+<!-- RESULTS -->
+<div id="results" class="page">
+<h2>Eligible Government Schemes</h2>
+<h3 id="count"></h3>
+<input id="search" placeholder="Search scheme..." onkeyup="searchSchemes()">
+<table>
+<thead>
+<tr>
+<th>Fav</th>
+<th>Select</th>
+<th>Scheme</th>
+<th>State</th>
+<th>Occupation</th>
+<th>Posted</th>
+<th>Deadline</th>
+<th>Apply</th>
+</tr>
+</thead>
+<tbody id="schemeTable"></tbody>
+</table>
+<br>
+<button onclick="showPage('home')">Home</button>
+</div>
+
+<!-- SCRIPT -->
+<script>
+function showPage(page){
+document.querySelectorAll(".page").forEach(p=>p.style.display="none");
+document.getElementById(page).style.display="block";
+}
+
+function toggleDarkMode(){
+document.body.classList.toggle("dark-mode");
+}
+
+/* SCHEMES DATABASE */
+const schemes=[
+{name:"PM Kisan Yojana",state:"All",occupation:"Farmer",gender:"any",caste:"any",location:"rural",minAge:18,maxIncome:200000,posted:"2026-01-10",deadline:"2026-06-30",link:"https://pmkisan.gov.in"},
+{name:"YSR Rythu Bharosa",state:"Andhra Pradesh",occupation:"Farmer",gender:"any",caste:"any",location:"rural",minAge:18,maxIncome:300000,posted:"2026-02-01",deadline:"2026-07-01",link:"https://ysrrythubharosa.ap.gov.in"},
+{name:"PM Awas Yojana",state:"All",occupation:"any",gender:"any",caste:"any",location:"any",minAge:18,maxIncome:300000,posted:"2026-02-15",deadline:"2026-09-01",link:"https://pmaymis.gov.in"},
+{name:"Skill India Mission",occupation:"Unemployed",state:"All",gender:"any",caste:"any",location:"any",minAge:18,maxIncome:500000,posted:"2026-01-05",deadline:"2026-12-01",link:"https://skillindia.gov.in"},
+{name:"National Scholarship Scheme",state:"All",occupation:"Student",gender:"any",caste:"any",location:"any",minAge:15,maxIncome:250000,posted:"2026-02-10",deadline:"2026-11-01",link:"https://scholarships.gov.in"},
+{name:"Sukanya Samriddhi Yojana",state:"All",occupation:"any",gender:"female",caste:"any",location:"any",minAge:0,maxIncome:1000000,posted:"2026-01-20",deadline:"2026-12-31",link:"https://indiapost.gov.in"},
+{name:"Old Age Pension",state:"All",occupation:"Senior Citizen",gender:"any",caste:"any",location:"any",minAge:60,maxIncome:200000,posted:"2026-02-05",deadline:"2026-10-01",link:"https://nsap.nic.in"},
+{name:"Telangana Kalyana Lakshmi",state:"Telangana",occupation:"any",gender:"female",caste:"sc",location:"any",minAge:18,maxIncome:200000,posted:"2026-01-25",deadline:"2026-09-30",link:"https://telangana.gov.in"},
+{name:"PM Mudra Loan",state:"All",occupation:"Business",gender:"any",caste:"any",location:"any",minAge:18,maxIncome:800000,posted:"2026-02-12",deadline:"2026-12-31",link:"https://mudra.org.in"}
+];
+
+function checkEligibility(){
+let age=parseInt(document.getElementById("age").value);
+let income=parseInt(document.getElementById("income").value);
+let occupation=document.getElementById("occupation").value;
+let state=document.getElementById("state").value;
+let gender=document.getElementById("gender").value;
+let caste=document.getElementById("caste").value;
+let location=document.getElementById("location").value;
+let table=document.getElementById("schemeTable");
+table.innerHTML="";
+let eligible=[];
+schemes.forEach(s=>{
+if(age>=s.minAge && income<=s.maxIncome && (s.state==="All"||s.state===state) && (s.occupation==="any"||s.occupation===occupation) && (s.gender==="any"||s.gender===gender) && (s.caste==="any"||s.caste===caste) && (s.location==="any"||s.location===location)){
+eligible.push(s);
+}
+});
+document.getElementById("count").innerText="You are eligible for "+eligible.length+" schemes";
+eligible.forEach((s,i)=>{
+let deadlineClass="";
+let today=new Date();
+let d=new Date(s.deadline);
+let diff=(d-today)/(1000*60*60*24);
+if(diff<30){deadlineClass="deadline";}
+let rowClass=i==0?"recommended":"";
+table.innerHTML+=`
+<tr class="${rowClass}">
+<td onclick="toggleFav(this)">⭐</td>
+<td><input type="checkbox"></td>
+<td>${s.name}</td>
+<td>${s.state}</td>
+<td>${s.occupation}</td>
+<td>${s.posted}</td>
+<td class="${deadlineClass}">${s.deadline}</td>
+<td><a href="${s.link}" target="_blank">Apply</a></td>
+</tr>
+`;
+});
+showPage("results");
+}
+
+function toggleFav(cell){
+cell.innerHTML = cell.innerHTML=="⭐" ? "🌟" : "⭐";
+}
+
+function searchSchemes(){
+let input=document.getElementById("search").value.toLowerCase();
+let rows=document.querySelectorAll("#schemeTable tr");
+rows.forEach(row=>{
+let text=row.innerText.toLowerCase();
+row.style.display=text.includes(input)?"":"none";
+});
+}
+</script>
+
+</body>
+</html>
